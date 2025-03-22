@@ -1,0 +1,41 @@
+import mongoose, { Schema } from "mongoose";
+
+const participantSchema = new mongoose.Schema({
+    name : {
+        type : String,
+        required : [true , "Name is required"]
+    },
+    email : {
+        type : String,
+        required : [true , "Email is required"]
+    },
+    phoneNumber : {
+        type : String
+    },
+    fromTerna : {
+        type : Boolean
+    },
+    idNumber : {
+        type : String
+    },
+    verified : {
+        type : Date
+    },
+    qrCode : {
+        type : String
+    }
+} , {timestamps : true})
+
+const virtual = participantSchema.virtual('id')
+virtual.get(function (){
+    return this._id;
+})
+participantSchema.set('toJSON',{
+    virtuals : true,
+    versionKey : false,
+    transform : function(doc, ret){ delete ret._id}
+    
+})
+
+const Participant = mongoose.model('Participant' , participantSchema)
+export default Participant
