@@ -5,24 +5,55 @@ import {
   sendQRCodeToEmail,
   generateRandomCode,
 } from "../utils/util.js"; // Extract reusable logic
-import { deleteParticipant, getAllParticipants } from "../controller/Participant.controller.js";
+import {
+  deleteParticipant,
+  getAllParticipants,
+} from "../controller/Participant.controller.js";
+import multer from "multer";
+import cloudinary from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 const router = express.Router();
+// Configure Cloudinary
+cloudinary.v2.config({
+  cloud_name: 'djmyuk3pc',
+  api_key: '265523133151115',
+  api_secret: 'zYGvqtveokYHOvtTpu8GfzxfT5s',
+});
 
-router.post("/", async (req, res) => {
+// Set up multer storage for Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary.v2,
+  params: {
+    folder: "aadhar_uploads", // Change folder name as needed
+    allowedFormats: ["jpg", "jpeg", "png", "pdf"],
+    resource_type: "auto",
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 1 * 1024 * 1024 }, // 1MB limit
+});
+
+router.post("/", upload.single("idFile"), async (req, res) => {
   try {
-    const { name, phone, email, fromTerna, idNumber } = req.body;
+    const { name, phone, email, fromTerna } = req.body;
 
-    if (!(name && phone && email && idNumber)) {
+    if (!(name && phone && email)) {
       return res.status(400).json({ message: "All fields are required" });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: "ID Card upload is required" });
     }
 
     const participant = new Participant({
       name,
-      phoneNumber : phone,
+      phoneNumber: phone,
       email,
       fromTerna,
-      idNumber,
+      idCardUrl: req.file.path, // Store Cloudinary URL
     });
 
     const saved = await participant.save();
@@ -31,7 +62,7 @@ router.post("/", async (req, res) => {
     saved.qrCode = code;
     await saved.save();
 
-    const qrCodeData = await generateQRCode(`${saved._id}-${code}`);
+    const qrCodeData = await generateQRCode(${saved._id}-${code});
     await sendQRCodeToEmail(saved.email, qrCodeData);
 
     res.status(201).json({ message: "Participant registered and email sent!" });
@@ -43,6 +74,6 @@ router.post("/", async (req, res) => {
 
 router.get("/", getAllParticipants);
 
-router.delete("/:id" , deleteParticipant)
+router.delete("/:id", deleteParticipant);
 
 export default router;
