@@ -62,7 +62,7 @@ router.post("/", upload.single("idFile"), async (req, res) => {
     saved.qrCode = code;
     await saved.save();
 
-    const qrCodeData = await generateQRCode(${saved._id}-${code});
+    const qrCodeData = await generateQRCode(`${saved._id}-${code}`);
     await sendQRCodeToEmail(saved.email, qrCodeData);
 
     res.status(201).json({ message: "Participant registered and email sent!" });
