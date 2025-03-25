@@ -1,0 +1,31 @@
+import mongoose from "mongoose";
+
+const participantSchema = new mongoose.Schema(
+    {
+      name: { type: String, required: [true, "Name is required"] },
+      email: { type: String, required: [true, "Email is required"] },
+      phoneNumber: { type: String },
+      fromTerna: { type: String, enum: ["Terna Student", "Terna Passout", "Faculty", "Outsider"] },
+      idCardUrl: { type: String }, // Store the Cloudinary file URL
+      verified: { type: Date },
+      qrCode: { type: String },
+    },
+    { timestamps: true }
+  );
+  
+
+const virtual = participantSchema.virtual("id");
+virtual.get(function () {
+  return this._id;
+});
+
+participantSchema.set("toJSON", {
+  virtuals: true,
+  versionKey: false,
+  transform: function (doc, ret) {
+    delete ret._id;
+  },
+});
+
+const Participant = mongoose.model("Participant", participantSchema);
+export default Participant;
