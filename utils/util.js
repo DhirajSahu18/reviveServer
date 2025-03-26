@@ -42,6 +42,7 @@ async function sendQRCodeToEmail(email, qrCodeData) {
     ],
     html: `
     <div style="font-family: Arial, sans-serif; color: #222; background-color: #fff; padding: 20px; line-height: 1.6;">
+    <h3 style="color: #000;">Event Entries start at 4pm IST.</u></h3>
   <h2 style="color: #d32f2f; border-bottom: 2px solid #d32f2f; padding-bottom: 5px;">
     TERMS AND CONDITIONS FOR CONCERT REGISTRATION
   </h2>
