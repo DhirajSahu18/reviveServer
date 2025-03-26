@@ -58,14 +58,14 @@ router.post("/", upload.single("idFile"), async (req, res) => {
 
     const saved = await participant.save();
 
-    const code = generateRandomCode();
-    saved.qrCode = code;
-    await saved.save();
+    // const code = generateRandomCode();
+    // saved.qrCode = code;
+    // await saved.save();
 
-    const qrCodeData = await generateQRCode(`${saved._id}-${code}`);
-    await sendQRCodeToEmail(saved.email, qrCodeData);
+    // const qrCodeData = await generateQRCode(`${saved._id}-${code}`);
+    // await sendQRCodeToEmail(saved.email, qrCodeData);
 
-    res.status(201).json({ message: "Participant registered and email sent!" });
+    res.status(201).json({ message: "Participant registered , we will send you mails soon!" });
   } catch (error) {
     console.error("Registration Error:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
