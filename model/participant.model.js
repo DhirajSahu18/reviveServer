@@ -5,7 +5,7 @@ const participantSchema = new mongoose.Schema(
       name: { type: String, required: [true, "Name is required"] },
       email: { type: String, required: [true, "Email is required"] },
       phoneNumber: { type: String },
-      fromTerna: { type: String, enum: ["Terna Student", "Terna Passout", "Faculty", "Outsider"] },
+      fromTerna: { type: String},
       idCardUrl: { type: String }, // Store the Cloudinary file URL
       verified: { type: Date },
       qrCode: { type: String },
