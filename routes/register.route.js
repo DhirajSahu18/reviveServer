@@ -48,6 +48,12 @@ router.post("/", upload.single("idFile"), async (req, res) => {
       return res.status(400).json({ message: "ID Card upload is required" });
     }
 
+    // Check if email already exists
+    const existingParticipant = await Participant.findOne({ email });
+    if (existingParticipant) {
+      return res.status(400).json({ message: "Email is already registered" });
+    }
+
     const participant = new Participant({
       name,
       phoneNumber: phone,
@@ -58,19 +64,13 @@ router.post("/", upload.single("idFile"), async (req, res) => {
 
     const saved = await participant.save();
 
-    // const code = generateRandomCode();
-    // saved.qrCode = code;
-    // await saved.save();
-
-    // const qrCodeData = await generateQRCode(`${saved._id}-${code}`);
-    // await sendQRCodeToEmail(saved.email, qrCodeData);
-
-    res.status(201).json({ message: "Participant registered , we will send you mails soon!" });
+    res.status(201).json({ message: "Participant registered, we will send you mails soon!" });
   } catch (error) {
     console.error("Registration Error:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
+
 
 router.get("/", getAllParticipants);
 
