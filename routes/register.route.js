@@ -16,9 +16,9 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 const router = express.Router();
 // Configure Cloudinary
 cloudinary.v2.config({
-  cloud_name: 'djmyuk3pc',
-  api_key: '265523133151115',
-  api_secret: 'zYGvqtveokYHOvtTpu8GfzxfT5s',
+  cloud_name: "djmyuk3pc",
+  api_key: "265523133151115",
+  api_secret: "zYGvqtveokYHOvtTpu8GfzxfT5s",
 });
 
 // Set up multer storage for Cloudinary
@@ -64,13 +64,23 @@ router.post("/", upload.single("idFile"), async (req, res) => {
 
     const saved = await participant.save();
 
-    res.status(201).json({ message: "Participant registered, we will send you mails soon!" });
+    const code = generateRandomCode();
+    saved.qrCode = code;
+    await saved.save();
+
+    const qrCodeData = await generateQRCode(`${saved._id}-${code}`);
+    await sendQRCodeToEmail(saved.email, qrCodeData);
+
+    res
+      .status(201)
+      .json({
+        message: "Participant registered, we will send you mails soon!",
+      });
   } catch (error) {
     console.error("Registration Error:", error.message);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
-
 
 router.get("/", getAllParticipants);
 
