@@ -1,5 +1,7 @@
 import qrCode from "qrcode";
-import nodemailer from "nodemailer";
+import sgMail from "@sendgrid/mail";
+import dotenv from "dotenv";
+dotenv.config();
 
 // ✅ Generate a random 6-digit code
 function generateRandomCode() {
@@ -16,33 +18,20 @@ async function generateQRCode(data) {
   });
 }
 
-// ✅ Nodemailer transporter setup
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  auth: {
-    user: "dhirajksahu18@gmail.com",
-    pass: "qbcb athn vmpw ouqj", // Use Gmail App Password
-  },
-});
+// ✅ SendGrid setup
+sgMail.setApiKey(
+  process.env.SEND_GRID_API_KEY
+);
 
 // ✅ Function to send the QR Code via Email
 async function sendQRCodeToEmail(email, qrCodeData) {
-  const mailOptions = {
-    from: "Revive Fest <your_email@gmail.com>",
+  const msg = {
     to: email,
+    from: "dhirajksahu01@gmail.com", // Change to your verified sender
     subject: "Your Revive Festive QR Code 🎉",
-    attachments: [
-      {
-        filename: "ReviveQR.jpg",
-        content: Buffer.from(qrCodeData.split("base64,")[1], "base64"),
-        encoding: "base64",
-      },
-    ],
     html: `
     <div style="font-family: Arial, sans-serif; color: #222; background-color: #fff; padding: 20px; line-height: 1.6;">
-    <h3 style="color: #000;">Event Entries start at 4pm IST.</u></h3>
+    <h3 style="color: #000;">Event Entries start at 4pm IST and will only be allowed after following <a href="https://instagram.com/reviveterna">reviveterna</a>.</h3>
   <h2 style="color: #d32f2f; border-bottom: 2px solid #d32f2f; padding-bottom: 5px;">
     TERMS AND CONDITIONS FOR CONCERT REGISTRATION
   </h2>
@@ -105,11 +94,23 @@ async function sendQRCodeToEmail(email, qrCodeData) {
     <li><strong>By registering, you legally acknowledge and accept</strong> all terms and conditions stated above.</li>
   </ul>
 </div>
-
     `,
+    attachments: [
+      {
+        content: qrCodeData.split("base64,")[1],
+        filename: "ReviveQR.jpg",
+        type: "image/jpeg",
+        disposition: "attachment",
+      },
+    ],
   };
 
-  return transporter.sendMail(mailOptions);
+  try {
+    await sgMail.send(msg);
+    console.log(`Mail sent to ${email}`);
+  } catch (error) {
+    console.error(`Unable to send to ${email}: ${error.message}`);
+  }
 }
 
 export { generateRandomCode, generateQRCode, sendQRCodeToEmail };
